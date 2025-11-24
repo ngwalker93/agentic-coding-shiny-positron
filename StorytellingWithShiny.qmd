@@ -1,0 +1,196 @@
+---
+title: "ASD 506- Week 5 Storytelling with Shiny - Australian Wine Sales"
+author: "Nancy Griffith Walker"
+date: today
+format: 
+  pdf:
+    geometry: "top=1in, bottom=1in, left=0.75in, right=0.75in"
+    keep-tex: true
+    include-in-header:
+      text: |
+        \usepackage{float}      % enables [H]
+        \usepackage{placeins}   % provides \FloatBarrier
+        \floatplacement{figure}{H}
+        \floatplacement{table}{H}
+execute:
+  echo: true
+  results: asis
+  warning: false
+  message: false
+---
+
+## Tab1 - visualization
+Inputs
+
+  * Multiselect for purpose
+  * Train date cutoff - default to "1993 Dec"
+  * Forecast horizon - default to 24 months
+
+### Load & wrangle
+
+Read CSV → tsibble with index = Month, key = Varietal. Filter by inputs: varietal(s), date range.
+
+```{r}
+
+library(fpp3)
+library(stringr)
+library(readr)
+library(gt)
+
+aus_wine <- read_csv("AustralianWines.csv",
+                     na = "*",
+                     col_types = cols(Rose = col_number()),
+                     show_col_types = FALSE) |>
+  fill(Rose, .direction = "down") |>
+  mutate(Month = mdy(str_replace(Month, "-", "-01-")) |> yearmonth())
+
+aus_wine_ts <- aus_wine |>
+  pivot_longer(cols = -Month, names_to = "Varietal", values_to = "Sales") |>
+  as_tsibble(index = Month, key = Varietal)
+
+```
+
+### Split
+
+Define train_end from input; training \<- filter_index(. \<= train_end); validation \<- filter_index(. \> train_end).
+
+```{r}
+train_end <- "1993 Dec" # Cutoff date for training set
+
+# Make the training dataset 
+train_data <- aus_wine_ts |> 
+  filter(Month <= yearmonth(train_end))
+
+# Make the validation dataset
+validation_data <- aus_wine_ts |> 
+  filter(Month > yearmonth(train_end))
+```
+
+### Visualize data
+
+```{r, fig.width=10, fig.height=6}
+train_end_date <- lubridate::parse_date_time(train_end, "Y b") |> as.Date()
+
+autoplot(aus_wine_ts) +
+  geom_vline(xintercept = train_end_date, color = "red", linetype = "dashed", linewidth = 0.6, inherit.aes = FALSE) +
+  labs(title = "Australian Wine Sales by Varietal") +
+  facet_wrap(~Varietal, scales = "free_y") +
+  theme_minimal()
+```
+
+## Tab 2 - Modeling Building 
+Inputs 
+  * Toggle for model selection (TSLM, ETS, ARIMA)
+  * Toggle Training Accuracy table display
+
+### Model (per varietal)
+
+model(TSLM = TSLM(Sales \~ trend() + season()), ETS = ETS(Sales), ARIMA = ARIMA(Sales))
+
+```{r}
+# Fit the models
+fit <- train_data |> 
+  model(
+    TSLM = TSLM(Sales ~ trend() + season()),
+    ETS = ETS(Sales),
+    ARIMA = ARIMA(Sales)
+  )
+
+# Inspect the model summaries
+fit
+```
+
+### Taining Accuracy
+
+```{r}
+# Compute training accuracy
+acc_train <- fit |> 
+  accuracy() |> 
+  arrange(RMSE) |> 
+  select(Varietal, .model, RMSE, MAE, MAPE) |> 
+  gt() |>
+  fmt_number(
+    columns = c(RMSE, MAE, MAPE),
+    decimals = 2
+  ) |>
+  tab_header(
+    title = "Training Set Forecast Accuracy"
+  )
+
+# View the accuracy table
+acc_train
+```
+
+# Tab 3 - Forecast
+
+Inputs 
+
+  * Select model for forecasting (TSLM, ETS, ARIMA)
+
+### Forecast
+
+forecast(h = input\$h) and also generate forecasts over the validation window for scoring.
+
+```{r}
+h <- 24 # 24 month forcast horizon for validation
+# in Shiny, this would be input$h
+
+# Generate forecasts for the validation period
+val_forecasts <- fit |> 
+  forecast(h = h)
+
+# Forcast over the validation window
+fc_valid <- fit |> 
+  forecast(new_data = validation_data)
+```
+
+### Evaluate
+
+fabletools::accuracy() for train/validation (RMSE, MAE, MAPE, etc.).
+
+```{r}
+# Compute accuracy over the validation period 
+acc_val <- fc_valid |> 
+  accuracy(validation_data) |> 
+  arrange(RMSE) |> 
+  select(Varietal, .model, RMSE, MAE, MAPE) |> 
+  gt() |>
+  fmt_number(
+    columns = c(RMSE, MAE, MAPE),
+    decimals = 2
+  ) |>
+  tab_header(
+    title = "Validation Set Forecast Accuracy",
+    subtitle = paste("Forecast horizon:", h, "months")
+  )
+
+# View the accuracy table
+acc_val
+```
+
+### Forecast Visualizations
+
+autoplot() of data + forecasts with ribbons for intervals; facets by varietal if multiple selected.
+
+```{r, fig.width=10, fig.height=6}
+start_ym <- yearmonth("1990 Jan")
+end_ym   <- yearmonth("2000 Dec")
+
+aus_plot <- aus_wine_ts |> filter(Month >= start_ym, Month <= end_ym)
+fc_plot  <- fc_valid    |> filter(Month >= start_ym, Month <= end_ym)
+
+autoplot(fc_plot, aus_plot) + 
+  labs(
+    title = "Wine Sales: ARIMA Forecasts by Varietal",
+    subtitle = paste("Validation horizon:", h, "months")
+  ) +
+  facet_wrap(~Varietal, scales = "free_y") +
+  theme_minimal()
+```
+
+# Document
+
+Add an About tab explaining data source, modeling choices, and how to reproduce your figures
+
+The data source for this application is the Australian Wine Sales dataset provided in the course module as a CSV file. Although the fpp3 ecosystem includes a similar dataset, this project was developed using the provided CSV file. The assignment requirements guided the modeling choices, which specified the use of TSLM, ETS, and ARIMA models. Each wine variety behaves differently depending on the underlying patterns and trends in the data. Forecasts were generated over a 24-month horizon to provide a sufficient evaluation period to compare each model. To reproduce the figures and results, refer to the full R code provided in StorytellingWithShiny.qmd. The code includes all necessary steps from data loading and wrangling to model fitting, forecasting, evaluation, and visualization.
+

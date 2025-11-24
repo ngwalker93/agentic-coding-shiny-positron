@@ -1,0 +1,10 @@
+# ==== R & RStudio / Positron ====
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+.Rapp.history
+.Rprofile
+
+# macOS system files
+.DS_Store

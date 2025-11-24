@@ -1,0 +1,51 @@
+---
+title: "ADS 506 — Week 5 Submission: Storytelling with Shiny"
+author: "Nancy Griffith Walker"
+date: today
+format:
+  pdf:
+    toc: false
+    geometry: ["margin=1in"]
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+## Part I — Links and Description (required)
+
+-   **Deployed Shiny App URL:** <https://...>
+-   **Code URL:**
+    -   GitHub repository: <https://github.com/ngwalker93/agentic-coding-shiny-positron>
+
+<!-- Briefly describe your app , It's main features and how to use it. -->
+
+App Description: *The data source for this application is the Australian Wine Sales dataset provided in the course module as a CSV file. Although the fpp3 ecosystem includes a similar dataset, this project was developed using the provided CSV file. The assignment requirements guided the modeling choices, which specified the use of TSLM, ETS, and ARIMA models. Each wine variety behaves differently depending on the underlying patterns and trends in the data. Forecasts were generated over a 24-month horizon to provide a sufficient evaluation period to compare each model. To reproduce the figures and results, refer to the full R code provided in StorytellingWithShiny.qmd. The code includes all necessary steps from data loading and wrangling to model fitting, forecasting, evaluation, and visualization.*
+
+App Features:
+
+-   *Interactive UI for model selection and parameter tuning*
+-   *Dynamic visualizations of forecasts and model performance metrics*
+-   ...
+
+## Part II — Data Story (≤ 2 pages total)
+
+### Insight: 
+
+Each wine variety exhibits unique sales patterns with their own top-performing forecasting model. Additionally, performance differences were generally consistent with each varietal. For example,  Rosé showed the lowest overall RMSE values, with ETS emerging as the best model, while Dry White wines had the highest RMSE values, where ARIMA performed best. These differences indicated that wine variety meaningfully influences forecasting accuracy and model selection, likely due to differences in trend, volatility, and seasonal behavior. -->
+
+### Evidence (screenshots + narrative + minimal tables) 
+
+Screenshot: Model horizons differ per wine varietal
+
+![Model Horizon Screenshot, Inputs: Model = "ARIMA", Horizon = 24 months, Plot window = 1990-1995](ARIMA_24MonthForecast.png)
+
+---
+
+### References
+
+Wickham, H. (2021). *Mastering Shiny*. O'Reilly Media. https://mastering-shiny.org/index.html
+
+OpenAI. (2025). GitHub Copilot (November 24 version)[Large Language Model].
+
+OpenAI. (2025). ChatGPT (November 24 version)[Large Language Model]. 
