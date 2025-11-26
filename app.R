@@ -17,6 +17,7 @@ ui <- fluidPage(
   titlePanel("Australian Wine Sales - Storytelling with Shiny"),
   sidebarLayout(
     sidebarPanel(
+      selectInput("varietal", "Varietal:", choices = NULL, multiple = FALSE), 
       selectInput("model", "Model:", choices = c("ARIMA", "ETS", "TSLM"), selected = "ARIMA"),
       sliderInput("h", "Forecast horizon (months):", min = 6, max = 24, step = 6, value = 24),
       sliderInput("zoom_years", "Plot window (start year - end year):", min = 1980, max = 1995, value = c(1990, 1995), step = 1),
@@ -43,7 +44,7 @@ server <- function(input, output, session){
   aus_wine_raw <- reactive({
     req(file.exists("AustralianWines.csv"))
     read_csv("AustralianWines.csv", na = "*", show_col_types = FALSE) |>
-      fill(Rose, .direction = "down") |>
+      fill(everything(), .direction = "down") |>
       mutate(Month = mdy(str_replace(Month, "-", "-01-")) |> yearmonth())
   })
   aus_wine_ts <- reactive({
@@ -53,14 +54,21 @@ server <- function(input, output, session){
 
   # Update UI choices after data is ready
   observeEvent(aus_wine_ts(), {
-    updateSelectInput(session, "varietal", choices = sort(unique(aus_wine_ts()$Varietal)), selected = unique(aus_wine_ts()$Varietal))
+    vars <- sort(unique(aus_wine_ts()$Varietal))
+    updateSelectInput(session, "varietal", choices = c("All varietals" = "All", vars), selected = "All")
   }, once = TRUE)
 
   # Filter reactive (uses input$varietal safely after choices are populated)
   filtered_ts <- reactive({
-    req(aus_wine_ts())
-    if (is.null(input$varietal) || length(input$varietal) == 0) aus_wine_ts() else aus_wine_ts() |> filter(Varietal %in% input$varietal)
-  })
+    req(aus_wine_ts(), input$varietal)
+    
+    if (input$varietal == "All") {
+      aus_wine_ts()
+    } else {
+      aus_wine_ts() |>
+        filter(Varietal == input$varietal)
+  }
+})
 
   # Use eventReactive to fit models only when user clicks Fit
   fitted_models <- eventReactive(input$fit_btn, {
@@ -75,17 +83,9 @@ server <- function(input, output, session){
   # Forecast generation also should be triggered (or use reactive that depends on fitted_models)
   forecasts <- reactive({
     req(fitted_models())
-    model_name <- input$model
-    fm <- fitted_models()
-    sel <- fm |> dplyr::select(dplyr::all_of(model_name))
-    tryCatch(
-      sel |> forecast(h = as.integer(input$h)),
-      error = function(e) {
-        message("forecast error: ", conditionMessage(e))
-        NULL
-    }
-  )
-})
+    fitted_models() |> forecast(h = as.integer(input$h)) |> 
+      dplyr::filter(.model == input$model)
+  })
 
   # (Keep plotting and accuracy renderers as before but refer to the reactive objects above.)
  output$forecast_plot <- renderPlot({
@@ -95,8 +95,14 @@ server <- function(input, output, session){
    end_ym   <- yearmonth(paste0(input$zoom_years[2], " Dec"))
    data_zoom <- filtered_ts() |> filter(Month >= start_ym, Month <= end_ym)
    fc_zoom <- fc |> filter(Month >= start_ym, Month <= end_ym)
-   req(NROW(fc_zoom) > 0) # ensure there's something to plot
-   autoplot(fc_zoom, data_zoom) + facet_wrap(vars(Varietal), scales = "free_y") + theme_minimal()
+   req(nrow(fc_zoom) > 0) # ensure there's something to plot
+   
+   autoplot(fc_zoom, data_zoom) + theme_minimal() + labs(
+      title = if (input$varietal == "ALL")
+        "Forecasts for All Varietals"
+      else
+        paste("Forecasts for", input$varietal)
+    )
  })
 
   output$accuracy_table <- renderTable({
