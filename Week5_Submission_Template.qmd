@@ -14,7 +14,7 @@ execute:
 
 ## Part I — Links and Description (required)
 
--   **Deployed Shiny App URL:** <>
+-   **Deployed Shiny App URL:** <https://connect.posit.cloud/ngwalker93/content/019ac08f-de66-20bf-dd18-a8284b7f8e09>
 -   **Code URL:**
     -   GitHub repository: <https://github.com/ngwalker93/agentic-coding-shiny-positron>
 

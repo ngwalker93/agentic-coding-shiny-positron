@@ -1,7 +1,15 @@
 library(shiny)
-library(fpp3)
+library(fpp3)        # meta-package (loads tsibble, fable, feasts, etc.)
 library(readr)
 library(stringr)
+library(dplyr)
+library(tidyr)
+library(lubridate)
+library(tsibble)
+library(fable)
+library(fabletools)
+library(feasts)
+library(ggplot2)
 library(gt)
 
 # UI
