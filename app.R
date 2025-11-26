@@ -47,10 +47,13 @@ server <- function(input, output, session){
       fill(everything(), .direction = "down") |>
       mutate(Month = mdy(str_replace(Month, "-", "-01-")) |> yearmonth())
   })
-  aus_wine_ts <- reactive({
-    req(aus_wine_raw())
-    aus_wine_raw() |> pivot_longer(cols = -Month, names_to = "Varietal", values_to = "Sales") |> as_tsibble(index = Month, key = Varietal)
-  })
+  aus_wine_ts <- reactive({req(aus_wine_raw())
+    aus_wine_raw() |>
+      pivot_longer(cols = -Month, names_to = "Varietal", values_to = "Sales") |>
+      mutate(Sales = as.numeric(Sales)) |>
+      as_tsibble(index = Month, key = Varietal)
+})
+
 
   # Update UI choices after data is ready
   observeEvent(aus_wine_ts(), {

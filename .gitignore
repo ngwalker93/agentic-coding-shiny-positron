@@ -7,4 +7,5 @@
 .Rprofile
 
 # macOS system files
-.DS_Storemanifest.json.bak
+.DS_Store
+manifest.json.bak
