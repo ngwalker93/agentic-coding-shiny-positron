@@ -1,0 +1,14 @@
+{
+  "name": "agentic-coding-shiny-positron",
+  "title": "Australian Wine Sales - Storytelling with Shiny",
+  "version": "0.1.0",
+  "description": "Shiny app for forecasting Australian wine sales using ARIMA, ETS and TSLM (fpp3).",
+  "author": "nancywalker",
+  "rVersion": "4.4.2",
+  "files": ["app.R", "AustralianWines.csv", "R/", "www/", "README.md"],
+  "packages": ["shiny", "fpp3", "readr", "stringr", "gt", "dplyr", "tidyr", "lubridate", "tsibble", "fable", "fabletools", "feasts", "ggplot2"],
+  "deploy": {
+    "server": "shinyapps.io",
+    "appName": "agentic-coding-shiny-positron"
+  }
+}
