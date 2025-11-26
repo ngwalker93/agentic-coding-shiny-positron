@@ -75,18 +75,29 @@ server <- function(input, output, session){
   # Forecast generation also should be triggered (or use reactive that depends on fitted_models)
   forecasts <- reactive({
     req(fitted_models())
-    fitted_models() |> select(input$model) |> forecast(h = input$h)
-  })
+    model_name <- input$model
+    fm <- fitted_models()
+    sel <- fm |> dplyr::select(dplyr::all_of(model_name))
+    tryCatch(
+      sel |> forecast(h = as.integer(input$h)),
+      error = function(e) {
+        message("forecast error: ", conditionMessage(e))
+        NULL
+    }
+  )
+})
 
   # (Keep plotting and accuracy renderers as before but refer to the reactive objects above.)
-  output$forecast_plot <- renderPlot({
-    req(forecasts(), filtered_ts())
-    start_ym <- yearmonth(paste0(input$zoom_years[1], " Jan"))
-    end_ym   <- yearmonth(paste0(input$zoom_years[2], " Dec"))
-    data_zoom <- filtered_ts() |> filter(Month >= start_ym, Month <= end_ym)
-    fc_zoom <- forecasts() |> filter(Month >= start_ym, Month <= end_ym)
-    autoplot(fc_zoom, data_zoom) + facet_wrap(vars(Varietal), scales = "free_y") + theme_minimal()
-  })
+ output$forecast_plot <- renderPlot({
+   fc <- forecasts()
+   req(fc, filtered_ts())
+   start_ym <- yearmonth(paste0(input$zoom_years[1], " Jan"))
+   end_ym   <- yearmonth(paste0(input$zoom_years[2], " Dec"))
+   data_zoom <- filtered_ts() |> filter(Month >= start_ym, Month <= end_ym)
+   fc_zoom <- fc |> filter(Month >= start_ym, Month <= end_ym)
+   req(NROW(fc_zoom) > 0) # ensure there's something to plot
+   autoplot(fc_zoom, data_zoom) + facet_wrap(vars(Varietal), scales = "free_y") + theme_minimal()
+ })
 
   output$accuracy_table <- renderTable({
     req(fitted_models())
