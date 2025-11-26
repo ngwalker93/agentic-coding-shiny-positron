@@ -14,7 +14,7 @@ execute:
 
 ## Part I — Links and Description (required)
 
--   **Deployed Shiny App URL:** <https://github.com/ngwalker93/agentic-coding-shiny-positron/blob/main/app.R>
+-   **Deployed Shiny App URL:** <>
 -   **Code URL:**
     -   GitHub repository: <https://github.com/ngwalker93/agentic-coding-shiny-positron>
 
@@ -32,7 +32,7 @@ App Features:
 
 ### Insight: 
 
-Each wine variety exhibits unique sales patterns with their own top-performing forecasting model. Additionally, performance differences were generally consistent with each varietal. For example,  Rosé showed the lowest overall RMSE values, with ETS emerging as the best model, while Dry White wines had the highest RMSE values, where ARIMA performed best. These differences indicated that wine variety meaningfully influences forecasting accuracy and model selection, likely due to differences in trend, volatility, and seasonal behavior. -->
+Comparing the wine varietals shows that each requires a different forecasting model, as evidenced by MAPE, a scale-adjusted error metric. RMSE is scale-dependent; however, it can be misleading, since varietals with low sales volumes naturally produce lower RMSE values even when the model fit is not superior. MAPE reveals the actual differences in forecasting performance. For example, red wine is best modeled with ARIMA (MAPE 8.63%), outperforming ETS (10.43%) and TSLM (11.79%). In contrast, fortified wine forecasts best with ETS (MAPE 10.24%), compared to higher errors from ARIMA (11.65%) and TSLM (16.25%). This pattern of different varietals favoring different models highlights that each wine type has its own time-series structure, and the best forecasting approach must be tailored to the specific varietal rather than relying on a single global model.
 
 ### Evidence (screenshots + narrative + minimal tables) 
 
