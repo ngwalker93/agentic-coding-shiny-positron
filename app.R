@@ -83,7 +83,7 @@ server <- function(input, output, session){
   output$accuracy_table <- renderTable({
     req(fitted_models())
     val <- filtered_ts() |> filter(Month > yearmonth("1993 Dec"))
-    acc <- fitted_models() |> forecast(new_data = val) |> accuracy(val) |> select(Varietal, .model, RMSE, MAE, MAPE) |> arrange(RMSE)
+    acc <- fitted_models() |> forecast(new_data = val) |> accuracy(val) |> select(Varietal, .model, MAPE, RMSE, MAE) |> arrange(MAPE)
     as.data.frame(acc)
   }, digits = 2)
 }
