@@ -10,7 +10,6 @@ library(fable)
 library(fabletools)
 library(feasts)
 library(ggplot2)
-library(urca)
 library(gt)
 
 # UI
