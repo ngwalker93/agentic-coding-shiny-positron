@@ -38,7 +38,7 @@ Comparing the wine varietals shows that each requires a different forecasting mo
 
 Screenshot: Model horizons differ per wine varietal
 
-![Model Horizon Screenshot, Inputs: Model = "ARIMA", Horizon = 24 months, Plot window = 1990-1995](ARIMA_24MonthForecast.png)
+![Model Horizon Screenshot, Inputs: Model = "ARIMA", Horizon = 24 months, Plot window = 1990-1995](ETS_24MonthForecast.png)
 
 ---
 
