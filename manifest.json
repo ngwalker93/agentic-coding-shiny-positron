@@ -2889,7 +2889,7 @@
   },
   "files": {
     "app.R": {
-      "checksum": "e7f7399a66c9234bc899eae1d9292082"
+      "checksum": "4653cef5d9025d623034acf382ba4903"
     },
     "ARIMA_24MonthForecast.png": {
       "checksum": "704f8296d28bdc3e1c3dfa4530bf58b6"
@@ -2897,17 +2897,20 @@
     "AustralianWines.csv": {
       "checksum": "6c734f279c3e6227df9f0c4ed086ec2a"
     },
+    "ETS_24MonthForecast.png": {
+      "checksum": "20eb729614c7f579bc4e8e44283cea5a"
+    },
     "README.md": {
       "checksum": "4184d873577a84fa3e4ae1e7e14563d0"
     },
     "StorytellingWithShiny.qmd": {
       "checksum": "01b20b57f9d238605cd17c6bca0923b8"
     },
-    "Week5_Submission_Template.qmd": {
-      "checksum": "f8ec1d6e243d3ca27874532cef36bad7"
+    "Week5_Submission_Template.pdf": {
+      "checksum": "4e06158dfc5fe10e6f1b72b210374297"
     },
-    "Week5_Walker_Nancy.pdf": {
-      "checksum": "f12fee40a8a43f40ad601b35a02d7c20"
+    "Week5_Submission_Template.qmd": {
+      "checksum": "d8d382d4d7ca871ace9d7060d22dc428"
     }
   },
   "users": null
