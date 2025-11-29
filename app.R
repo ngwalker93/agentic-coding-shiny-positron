@@ -11,7 +11,11 @@ library(fabletools)
 library(feasts)
 library(ggplot2)
 library(gt)
-library(urca)
+if (requireNamespace("urca", quietly = TRUE)) {
+  library(urca)
+} else {
+  message("Package 'urca' is not installed on this server. ARIMA-related functions may behave differently.")
+}
 
 # UI
 ui <- fluidPage(
