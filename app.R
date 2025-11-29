@@ -11,6 +11,7 @@ library(fabletools)
 library(feasts)
 library(ggplot2)
 library(gt)
+library(rlang)      # for safe programming with shiny inputs
 if (requireNamespace("urca", quietly = TRUE)) {
   library(urca)
 } else {
@@ -38,10 +39,7 @@ ui <- fluidPage(
         Each wine variety behaves differently depending on the underlying patterns and trends in the data. Forecasts were 
         generated over a 24-month horizon to provide a sufficient evaluation period to compare each model. To reproduce the 
         figures and results, refer to the full R code provided in StorytellingWithShiny.qmd. The code includes all necessary 
-        steps from data loading and wrangling to model fitting, forecasting, evaluation, and visualization."),
-        p(tags$em("Note: In the app, 
-        a single seasonal ARIMA specification ARIMA(1,0,1)(0,1,1)[12] with drift was used 
-        for simplicity, informed by the per-varietal ARIMA models selected during offline analysis.")))
+        steps from data loading and wrangling to model fitting, forecasting, evaluation, and visualization."))
       )
     )
   )
@@ -92,11 +90,18 @@ server <- function(input, output, session){
   }, ignoreNULL = FALSE)
 
   # Forecast generation also should be triggered (or use reactive that depends on fitted_models)
-  forecasts <- reactive({
-    req(fitted_models())
-    fitted_models() |> forecast(h = as.integer(input$h)) |> 
-      dplyr::filter(.model == input$model)
-  })
+forecasts <- reactive({
+  req(fitted_models(), input$model)
+  fc_all <- fitted_models() |> forecast(h = as.integer(input$h))
+  fc_sel <- fc_all |> dplyr::filter(.data$.model == input$model)
+
+  if (nrow(fc_sel) == 0) {
+    message("No forecasts produced for model: ", input$model)
+    message("Available .model values: ", paste(unique(fc_all$.model), collapse = ", "))
+  }
+
+  fc_sel
+})
 
   # (Keep plotting and accuracy renderers as before but refer to the reactive objects above.)
  output$forecast_plot <- renderPlot({
