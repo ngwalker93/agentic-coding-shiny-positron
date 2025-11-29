@@ -11,7 +11,6 @@ library(fabletools)
 library(feasts)
 library(ggplot2)
 library(gt)
-library(urca)
 
 # UI
 ui <- fluidPage(
