@@ -11,6 +11,7 @@ library(fabletools)
 library(feasts)
 library(ggplot2)
 library(gt)
+library(urca)
 
 # UI
 ui <- fluidPage(
@@ -33,7 +34,10 @@ ui <- fluidPage(
         Each wine variety behaves differently depending on the underlying patterns and trends in the data. Forecasts were 
         generated over a 24-month horizon to provide a sufficient evaluation period to compare each model. To reproduce the 
         figures and results, refer to the full R code provided in StorytellingWithShiny.qmd. The code includes all necessary 
-        steps from data loading and wrangling to model fitting, forecasting, evaluation, and visualization."))
+        steps from data loading and wrangling to model fitting, forecasting, evaluation, and visualization."),
+        p(tags$em("Note: In the app, 
+        a single seasonal ARIMA specification ARIMA(1,0,1)(0,1,1)[12] with drift was used 
+        for simplicity, informed by the per-varietal ARIMA models selected during offline analysis.")))
       )
     )
   )
@@ -58,14 +62,14 @@ server <- function(input, output, session){
   # Update UI choices after data is ready
   observeEvent(aus_wine_ts(), {
     vars <- sort(unique(aus_wine_ts()$Varietal))
-    updateSelectInput(session, "varietal", choices = c("All varietals" = "All", vars), selected = "All")
+    updateSelectInput(session, "varietal", choices = c("All varietals" = "ALL", vars), selected = "ALL")
   }, once = TRUE)
 
   # Filter reactive (uses input$varietal safely after choices are populated)
   filtered_ts <- reactive({
     req(aus_wine_ts(), input$varietal)
-    
-    if (input$varietal == "All") {
+
+    if (input$varietal == "ALL") {
       aus_wine_ts()
     } else {
       aus_wine_ts() |>
